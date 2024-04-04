@@ -12,28 +12,39 @@
 ;; LIB FUNCTIONS
 
 ;; Sprite
-(fn create-animated-sprite [idlist speed basecolor]
+(fn sprite-create [idlist speed basecolor]
   {:idlist idlist :speed speed :basecolor basecolor})
 
-(fn draw-animated-sprite [animsprite x y]
+(fn sprite-draw [animsprite x y]
   (let [current-sprite (. animsprite.idlist (+ 1 (% (// time animsprite.speed) (length animsprite.idlist))))]
     (spr current-sprite x y 0 animsprite.basecolor 0 0 2 2)))
 
 ;; Entity
-(fn create-game-entity [x y spritelist]
+(fn entity-create [x y spritelist]
   {:x x :y y :sprite spritelist})
 
-(fn draw-entity [entity]
-   (draw-animated-sprite entity.sprite entity.x entity.y))
+(fn entity-draw [entity]
+   (sprite-draw entity.sprite entity.x entity.y))
 
-;; GAME
+;; GAME STATES
 
-(var bomb (create-game-entity 0 0 (create-animated-sprite [33 35] 10 1)))
+(var game {:update (fn [])})
+
+;; Game
+
+(var stategame {:data {} :reset (fn []) :update (fn [])})
+(set stategame.data.bomb (entity-create 0 0 (sprite-create [33 35] 10 1)))
+(set stategame.update (fn []
+  (cls 0)
+  (entity-draw stategame.data.bomb)))
+
+;; INITIALIZATION 
+
+(set game.update stategame.update)
 
 (fn _G.TIC []
-  (cls 0)
   (set time (+ time 1))
-  (draw-entity bomb))
+  (game.update))
 
 ;; TIC-80 METADATA
 
